@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gocarina/gocsv"
@@ -17,7 +18,7 @@ type Trade struct {
 	PnL             string             `csv:"pnl"`
 	BoughtTimestamp TradovateTimestamp `csv:"boughtTimestamp"`
 	SoldTimestamp   TradovateTimestamp `csv:"soldTimestamp"`
-	Duration        string             `csv:"duration"`
+	Duration        TradovateDuration  `csv:"duration"`
 }
 
 type TradovateTimestamp struct {
@@ -25,8 +26,30 @@ type TradovateTimestamp struct {
 }
 
 // Convert the CSV string as internal date
-func (date *TradovateTimestamp) UnmarshalCSV(csv string) (err error) {
-	date.Time, err = time.Parse("01/02/2006 15:04:05", csv)
+func (date *TradovateTimestamp) UnmarshalCSV(timestampString string) (err error) {
+	date.Time, err = time.Parse("01/02/2006 15:04:05", timestampString)
+	return err
+}
+
+type TradovateDuration struct {
+	time.Duration
+}
+
+// Convert the CSV string as internal date
+func (duration *TradovateDuration) UnmarshalCSV(durationString string) (err error) {
+	durationArray := strings.Fields(durationString)
+	for i, duration := range durationArray {
+		if strings.Contains(duration, "min") {
+			durationArray[i] = strings.Replace(duration, "min", "m", 1)
+		}
+		if strings.Contains(duration, "sec") {
+			durationArray[i] = strings.Replace(duration, "sec", "s", 1)
+		}
+	}
+	duration.Duration, err = time.ParseDuration(strings.Join(durationArray, ""))
+	if err != nil {
+		panic(err)
+	}
 	return err
 }
 
