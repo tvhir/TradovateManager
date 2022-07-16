@@ -3,24 +3,31 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gocarina/gocsv"
 )
 
 type Trade struct {
-	Symbol          string  `csv:"symbol"`
-	PriceFormat     int     `csv:"_priceFormat"`
-	PriceFormatType int     `csv:"_priceFormatType"`
-	TickSize        float32 `csv:"_tickSize"`
-	BuyFillId       int     `csv:"buyFillId"`
-	SellFillId      int     `csv:"sellFillId"`
-	Qty             int     `csv:"qty"`
-	BuyPrice        float32 `csv:"buyPrice"`
-	SellPrice       float32 `csv:"sellPrice"`
-	PnL             string  `csv:"pnL"`
-	BoughtTimestamp string  `csv:"boughtTimestamp"`
-	SellTimestamp   string  `csv:"sellTimestamp"`
-	Duration        string  `csv:"duration"`
+	Symbol          string             `csv:"symbol"`
+	TickSize        float32            `csv:"_tickSize"`
+	Qty             int                `csv:"qty"`
+	BuyPrice        float32            `csv:"buyPrice"`
+	SellPrice       float32            `csv:"sellPrice"`
+	PnL             string             `csv:"pnl"`
+	BoughtTimestamp TradovateTimestamp `csv:"boughtTimestamp"`
+	SoldTimestamp   TradovateTimestamp `csv:"soldTimestamp"`
+	Duration        string             `csv:"duration"`
+}
+
+type TradovateTimestamp struct {
+	time.Time
+}
+
+// Convert the CSV string as internal date
+func (date *TradovateTimestamp) UnmarshalCSV(csv string) (err error) {
+	date.Time, err = time.Parse("01/02/2006 15:04:05", csv)
+	return err
 }
 
 func main() {
@@ -35,16 +42,7 @@ func main() {
 	fmt.Println("Opened CSV")
 	defer performanceCSV.Close()
 
-	// // read and print CSV file
-	// fileReader := csv.NewReader(performanceCSV)
-	// trades, error := fileReader.ReadAll()
-	// if error != nil {
-	// 	fmt.Println(error)
-	// }
-	// for trade := range trades {
-	// 	fmt.Printf("%s\n", trades[trade])
-	// }
-
+	// read and print CSV file
 	trades := []*Trade{}
 
 	if err := gocsv.UnmarshalFile(performanceCSV, &trades); err != nil {
