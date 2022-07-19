@@ -3,6 +3,7 @@ package ETL
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,11 +12,16 @@ import (
 
 type Trade struct {
 	Symbol          string             `csv:"symbol"`
-	TickSize        float32            `csv:"_tickSize"`
-	Qty             int                `csv:"qty"`
-	BuyPrice        float32            `csv:"buyPrice"`
-	SellPrice       float32            `csv:"sellPrice"`
-	PnL             string             `csv:"pnl"`
+	Direction       string             `csv:"direction"`
+	TickSize        float64            `csv:"_tickSize"`
+	Quantity        float64            `csv:"qty"`
+	BuyPrice        float64            `csv:"buyPrice"`
+	SellPrice       float64            `csv:"sellPrice"`
+	PriceSpread     float64            `csv:"priceSpread"`
+	GrossPnL        Currency           `csv:"pnl"`
+	Commisions      float64            `csv:"commisions"`
+	NetPnL          float64            `csv:"netPNL"`
+	RunningNetPNL   float64            `csv:"runningNetPNL"`
 	BoughtTimestamp TradovateTimestamp `csv:"boughtTimestamp"`
 	SoldTimestamp   TradovateTimestamp `csv:"soldTimestamp"`
 	Duration        TradovateDuration  `csv:"duration"`
@@ -47,9 +53,24 @@ func (duration *TradovateDuration) UnmarshalCSV(durationString string) (err erro
 		}
 	}
 	duration.Duration, err = time.ParseDuration(strings.Join(durationArray, ""))
-	if err != nil {
-		panic(err)
+	return err
+}
+
+type Currency struct {
+	float64
+}
+
+// Convert the CSV string as internal date
+func (dollars *Currency) UnmarshalCSV(dollarString string) (err error) {
+	//Remove the $ char
+	dollarString = dollarString[1:]
+
+	//Negative Value
+	if dollarString[0] == '(' && dollarString[len(dollarString)-1] == ')' {
+		dollarString = "-" + dollarString[1:len(dollarString)-1]
 	}
+
+	dollars.float64, err = strconv.ParseFloat(dollarString, 64)
 	return err
 }
 
