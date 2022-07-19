@@ -2,7 +2,7 @@ package ETL
 
 import "fmt"
 
-func Transform(trades []*Trade) []*Trade {
+func Transform(trades []*Trade) {
 	runningNet := 0.0
 	for _, trade := range trades {
 		//Direction
@@ -29,6 +29,4 @@ func Transform(trades []*Trade) []*Trade {
 		trade.RunningNetPNL = runningNet
 		fmt.Printf("%+v\n", *trade)
 	}
-
-	return []*Trade{}
 }

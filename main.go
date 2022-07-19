@@ -16,11 +16,11 @@ func main() {
 	// 	fmt.Printf("%+v\n", *trade)
 	// }
 
-	transformedTrades := ETL.Transform(trades)
+	ETL.Transform(trades)
 
-	for _, trade := range transformedTrades {
-		fmt.Printf("%+v\n", *trade)
-	}
+	// for _, trade := range transformedTrades {
+	// 	fmt.Printf("%+v\n", *trade)
+	// }
 
 	ETL.Load(trades)
 
