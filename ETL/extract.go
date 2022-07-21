@@ -70,6 +70,9 @@ func (dollars *Currency) UnmarshalCSV(dollarString string) (err error) {
 		dollarString = "-" + dollarString[1:len(dollarString)-1]
 	}
 
+	//Remove any commas
+	dollarString = strings.ReplaceAll(dollarString, ",", "")
+
 	dollars.float64, err = strconv.ParseFloat(dollarString, 64)
 	return err
 }
@@ -78,7 +81,7 @@ func (dollars *Currency) UnmarshalCSV(dollarString string) (err error) {
 func Extract() []*Trade {
 
 	//Open CSV
-	performanceCSV, err := os.Open("Performance.07.11-15.22.csv")
+	performanceCSV, err := os.Open("performance.csv")
 	if err != nil {
 		fmt.Println(err)
 	}
